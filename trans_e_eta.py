@@ -5,10 +5,10 @@ import math
 import re
 
 def x_transfo(x) :
-  return 10 ** x
+  return x
 
 def y_transfo(y) :
-  return 1. / (y * 365)
+ return 10 ** y
 
 # create the right file
 def header_transfo(s, i) :

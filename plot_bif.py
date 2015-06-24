@@ -19,8 +19,14 @@ import matplotlib.cm as cm
 
 color_map = cm.cubehelix
 
-pars_file = sys.argv[1]
-vals_file = sys.argv[2]
+root_path = sys.argv[1]
+
+pars_file = root_path + "_pars.csv"
+vals_file = root_path + "_vals.csv"
+x_file = root_path + "_x.csv"
+y_file = root_path + "_y.csv"
+lambd_file = root_path + "_l0.csv"
+per_file = root_path + "_per.csv"
 
 pars = np.genfromtxt(pars_file, delimiter=",")
 vals = np.genfromtxt(vals_file, delimiter=",")
@@ -46,15 +52,30 @@ for x, y, i, j in it :
   i[...] = pars[ind, 0]
   j[...] = pars[ind, 1]
 
-la, pa = np.zeros_like(ia), np.zeros([np.shape(ia)[0], np.shape(ia)[1], 3])
-it = np.nditer([ia, ja, la],
-               op_flags=[['readonly'], ['readonly'], ['writeonly']])
 
-for i, j, l in it :
+la, pa = np.zeros_like(ia), \
+         np.zeros([np.shape(vals[:, 3:])[1], 
+                   np.shape(ia)[0], 
+                   np.shape(ia)[1]])
+it = np.nditer([ia, ja, la, pa],
+               flags=['reduce_ok'],
+               op_flags=[['readonly'], ['readonly'], 
+                         ['readwrite'], ['writeonly']],
+               op_axes=[[-1, 0, 1], [-1, 0, 1], [-1, 0, 1], [0, 1, 2]])
+
+for i, j, l, p in it :
   ind = np.where(np.logical_and(vals[:, 0] == i, vals[:, 1] == j))[0]
-  l[...] = vals[ind, 2]
-  # p[...] = vals[ind, 3:6]
+  try :
+    l[...] = vals[ind, 2]
+    #p[...] = vals[ind, 3:]
+  except ValueError : 
+    pass
+
+for fname, ar in zip([x_file, y_file, lambd_file],
+                     [xa, ya, la]) :
+  np.savetxt(fname, ar, delimiter=",")
 
 plt.pcolormesh(xa, ya, la, cmap=color_map)
+plt.colorbar()
 plt.show()
 

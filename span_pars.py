@@ -34,6 +34,12 @@ parser.add_argument("--nfiles",
                     default=1,
                     help="the number of files to generate")
 
+parser.add_argument("--header",
+                    type=str,
+                    default="",
+                    help="A string to put at the beginning of the files."
+                        +"A newline is inserted at the end of the header.")
+
 parser.add_argument("--root_path",
                     type=str,
                     default="run_with_pars",
@@ -55,6 +61,7 @@ parser.add_argument("--save_pars_mat",
 
 pars = parser.parse_args()
 
+header = pars.header
 prefix = pars.prefix
 suffix = pars.suffix
 
@@ -109,16 +116,17 @@ if one_param :
   
   for i in range(nfiles - 1) :
     with open(root_path + "_" + str(i), 'w') as fich :
-      fich.write("#!/usr/bin/zsh\n")
+      fich.write(tr.header_transfo(header, i) + "\n")
       for j in range(n_vals_per_files) :
         fich.write(one_str(x, i, j))
         pars_l.append([str(i), str(j), str(x)])
         x = next_val(x)
   
   with open(root_path + "_" + str(nfiles - 1), 'w') as fich :
-    fich.write("#!/usr/bin/zsh\n")
+    fich.write(tr.header_transfo(header, nfiles - 1) + "\n")
     for j in range(n_vals_per_last_file) :
         fich.write(one_str(x, nfiles - 1, j))
+        pars_l.append([str(nfiles - 1), str(j), str(x)])
         try :
           x = next_val(x)
         except ValueError :
@@ -157,7 +165,7 @@ else : # we iterate over two parameters
   
   for i in range(nfiles - 1) :
     with open(root_path + "_" + str(i), 'w') as fich :
-      fich.write("#!/usr/bin/zsh\n")
+      fich.write(tr.header_transfo(header, i) + "\n")
       for j in range(n_vals_per_files) :
         fich.write(two_str(x, y, i, j)) 
         pars_l.append([str(i), str(j), str(x), str(y)])
@@ -165,10 +173,10 @@ else : # we iterate over two parameters
                 
   
   with open(root_path + "_" + str(nfiles - 1), 'w') as fich :
-    fich.write("#!/usr/bin/zsh\n")
+    fich.write(tr.header_transfo(header, nfiles - 1) + "\n")
     for j in range(n_vals_per_last_file) :
         fich.write(two_str(x, y, nfiles - 1, j))
-        pars_l.append([str(i), str(j), str(x), str(y)])
+        pars_l.append([str(nfiles - 1), str(j), str(x), str(y)])
         try :
           x, y = next_val(x, y)
         except ValueError :

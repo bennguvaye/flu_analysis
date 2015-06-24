@@ -31,16 +31,6 @@ def rfftfreq(n, d=1.0):
   Array of length ``n//2 + 1`` containing the sample frequencies.
   Examples
   --------
-  >>> signal = np.array([-2, 8, 6, 4, 1, 0, 3, 5, -3, 4], dtype=float)
-  >>> fourier = np.fft.rfft(signal)
-  >>> n = signal.size
-  >>> sample_rate = 100
-  >>> freq = np.fft.fftfreq(n, d=1./sample_rate)
-  >>> freq
-  array([ 0., 10., 20., 30., 40., -50., -40., -30., -20., -10.])
-  >>> freq = np.fft.rfftfreq(n, d=1./sample_rate)
-  >>> freq
-  array([ 0., 10., 20., 30., 40., 50.])
   """
   if not isinstance(n, int):
     raise ValueError("n should be an integer")
@@ -54,7 +44,6 @@ def stdin_to_array() :
   Reads a csv file from stdin. 
 
   """
- 
   a = np.genfromtxt(fileinput.input(mode='rb'), delimiter=",", skip_header=1)
   return a
 
@@ -63,7 +52,6 @@ def compute_period(t, x) :
   Returns the periods of the system.
 
   """
-
   n = len(t)
   centered_sys = x - np.mean(x, axis=0)
   sampling_spacing = (t[-1] - t[0]) / (n * 365)
@@ -79,7 +67,6 @@ def norm2(x) :
   Compute the 2-norm along the last axis.
 
   """
-
   if len(np.shape(x)) > 1 :
     f = lambda y : np.inner(y,y)
     nsq = np.apply_along_axis(f, 1, x)

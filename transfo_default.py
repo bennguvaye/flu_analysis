@@ -7,6 +7,9 @@ def x_transfo(x) :
 def y_transfo(y) :
   return y 
 
+def header_transfo(s, i) :
+  return s
+
 def prefix_transfo(s, i, j) :
   return s
 

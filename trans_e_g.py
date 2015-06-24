@@ -5,8 +5,9 @@ import math
 import re
 
 def x_transfo(x) :
-  return 10 ** x
+  return x
 
+# inverse, and in years instead of in days
 def y_transfo(y) :
   return 1. / (y * 365)
 
