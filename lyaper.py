@@ -53,7 +53,6 @@ def cut_transient(t_end_transient, t_ser) :
   
   """
   inds_sel = np.where(t_ser[:,0] > t_end_transient)
-  print(inds_sel)
   new_t_ser = t_ser[inds_sel]
   
   return new_t_ser
