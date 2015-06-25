@@ -6,7 +6,9 @@
 from lyaper import *
 import sys
 
-t_ser = stdin_to_array()
+full_t_ser = stdin_to_array()
+t_ser = cut_transient(365 * 100, full_t_ser)
+#t_ser = full_t_ser
 t = t_ser[:,0]
 h = t_ser[:,1]
 x = t_ser[:,2:14]

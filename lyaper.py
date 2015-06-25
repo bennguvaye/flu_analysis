@@ -47,6 +47,17 @@ def stdin_to_array() :
   a = np.genfromtxt(fileinput.input(mode='rb'), delimiter=",", skip_header=1)
   return a
 
+def cut_transient(t_end_transient, t_ser) :
+  """
+  Cut part of a time series out (from time 0 to time t_end_transient)
+  
+  """
+  inds_sel = np.where(t_ser[:,0] > t_end_transient)
+  print(inds_sel)
+  new_t_ser = t_ser[inds_sel]
+  
+  return new_t_ser
+
 def compute_period(t, x) :
   """
   Returns the periods of the system.
