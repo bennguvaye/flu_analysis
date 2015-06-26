@@ -70,7 +70,15 @@ def compute_period(t, x) :
   max_indices = np.argmax(abs_ft, axis=0)
   max_freqs = freqs[ max_indices ]
   
-  return 1 / max_freqs
+  periods_by_max = 1 / max_freqs
+  
+  confidence = np.mean(abs_ft[np.where(np.logical_and(freqs > 0.8, freqs < 1.2))],
+                      axis=0) \
+               / np.mean(abs_ft, axis=0)
+  
+  return np.append(periods_by_max[np.newaxis, :], 
+                   confidence[np.newaxis, :], 
+                   axis=0)
 
 def norm2(x) :
   """
@@ -96,7 +104,7 @@ def det_jump_points(dx) :
   delt = np.mean(diffds)  # average variation variation
   ind = np.arange(l)
   jp = ind[(diffds < delt / 4)]  # check this syntax
-
+  
   return jp
 
 # compute lyapunov exponent
@@ -120,5 +128,5 @@ def lyap_exp(t, h, dx, jp) :
            + np.log(norm2(dx[jp[i + 1]]) / norm2(dx[jp[i] + 1]))
   tf = (t[-1] - t[0] - sum(h[jp])) / 365
   l0 = l0 / tf 
-
+  
   return l0
