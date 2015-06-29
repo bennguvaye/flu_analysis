@@ -75,7 +75,7 @@ def compute_period(t, x) :
   confidence = np.mean(abs_ft[np.where(np.logical_and(freqs > 0.8, freqs < 1.2))],
                       axis=0) \
                / np.mean(abs_ft, axis=0)
-  
+
   return np.append(periods_by_max[np.newaxis, :], 
                    confidence[np.newaxis, :], 
                    axis=0)

@@ -33,7 +33,7 @@ args = vars(parser.parse_args())
 args['npoints'] = str(int(args['res']) ** 2)
 
 sys.stdout.write(
-"""python3 span_pars.py --prefix "/import/ec_ecologie/bnguyen/flu/ocaml/sim_{exe}.native -tf 182500" -x {x} {res} {xmin} {xmax} -y {y} {res} {ymin} {ymax} --transfo trans_{x}_{y} --suffix " | /usr/bin/python /import/ec_ecologie/bnguyen/flu/python/get_lyaper.py >> /import/ec_ecologie/bnguyen/flu/data/{exe}_{x}{y}_{npoints}" --header '''#!/usr/bin/zsh
+"""python3 span_pars.py --prefix "/import/ec_ecologie/bnguyen/flu/ocaml/sim_{exe}.native -tf 182500" -x {x} {res} {xmin} {xmax} -y {y} {res} {ymin} {ymax} --transfo trans_default --suffix " | /usr/bin/python /import/ec_ecologie/bnguyen/flu/python/get_lyaper.py >> /import/ec_ecologie/bnguyen/flu/data/{exe}_{x}{y}_{npoints}" --header '''#!/usr/bin/zsh
 /usr/bin/touch /import/ec_ecologie/bnguyen/flu/data/{exe}_{x}{y}_{npoints}''' --nfiles {nfiles} --root_path ../scripts/{exe}_{x}{y}_{npoints} --save_pars_mat ../../data/{exe}_{x}{y}_{npoints}_pars.csv\n""".format(**args))
 
 

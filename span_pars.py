@@ -96,6 +96,8 @@ if one_param :
   n_vals_per_last_file = n_vals_per_files + nx % nfiles
   output_info(n_vals_per_files, n_vals_per_last_file)
 
+  x_transfo = tr.vars_transfo[x_key]
+
   pars_l = list()
   pars_l.append(["i", "j", x_key])
 
@@ -107,7 +109,7 @@ if one_param :
 
   def one_str(x, i, j) :
     mastr =  tr.prefix_transfo(prefix, i, j) \
-      + " -" + x_key + " " + str(tr.x_transfo(x)) \
+      + " -" + x_key + " " + str(x_transfo(x)) \
       + tr.suffix_transfo(suffix, i, j) \
       + "\n"
     return mastr
@@ -142,11 +144,14 @@ else : # we iterate over two parameters
 
   pars_l = list()
   pars_l.append(["i", "j", x_key, y_key])
-  
+
+  x_transfo = tr.vars_transfo[x_key]
+  y_transfo = tr.vars_transfo[y_key]
+ 
   def two_str(x, y, i, j) :
     mastr = tr.prefix_transfo(prefix, i, j) \
-      + " -" + x_key + " " + str(tr.x_transfo(x)) \
-      + " -" + y_key + " " + str(tr.y_transfo(y)) \
+      + " -" + x_key + " " + str(x_transfo(x)) \
+      + " -" + y_key + " " + str(y_transfo(y)) \
       + tr.suffix_transfo(suffix, i, j) \
       + "\n" 
     return mastr
