@@ -6,7 +6,7 @@ import sys
 import re
 
 doss = sys.argv[1]
-flush_number = sys.argv[2]
+flush_number = int(sys.argv[2])
 
 for fname in os.listdir(doss) :
   keep_lines = list()
