@@ -25,6 +25,6 @@ diff_perconf = compute_period(diff_t, diff_x)
 dperconf = np.append(perconf, diff_perconf, axis=0)
 lperconf = list(dperconf.flatten())
 
-to_be_written = ("".join(["{}, "] * (4 * n + 1))+"\n").format(l0, *lperconf)
-
-sys.stdout.write(to_be_written[:-1]) # the last character is a "," and we don't want it
+to_be_written = ("".join(["{}, "] * (4 * n + 1))[:-2] + "\n").format(l0, *lperconf)
+# [:-2] : the last character is a ", " and we don't want it (empty field)
+sys.stdout.write(to_be_written) 
