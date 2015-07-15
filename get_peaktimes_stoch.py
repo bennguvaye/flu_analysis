@@ -23,12 +23,11 @@ import argparse
 
 full_t_ser = stdin_to_array()
 t_ser = cut_transient(365 * 50, full_t_ser)
-n = (np.shape(t_ser)[1] - 2) // 2 # normally necessarily an integer
+n = (np.shape(t_ser)[1] - 1)
 t = t_ser[:, 0]
-h = t_ser[:, 1]
-x = t_ser[:, 2 : n + 2]
+x = t_ser[:, 1 : n + 1]
 
-t_p, x_p = find_peaks_det(t, x[:, 1:2]) # for ssd
+t_p, x_p = find_peaks_det(t, x[:, 1:2]) # for sss
 
 interpeak = t_p[1:] - t_p[:-1]
 per = np.mean(interpeak)
