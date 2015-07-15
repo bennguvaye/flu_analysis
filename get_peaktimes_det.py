@@ -34,7 +34,7 @@ t_p, x_p = find_peaks_det(t, x[:, 1:2]) # for ssd
 interpeak = t_p[1:] - t_p[:-1]
 per = np.mean(interpeak)
 
-approx_x_p = np.round(x_p, decimals=3)
+approx_x_p = np.round(x_p, decimals=1)
 peak_vals = np.unique(approx_x_p) 
 
 l = len(peak_vals)
