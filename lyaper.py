@@ -130,3 +130,115 @@ def lyap_exp(t, h, dx, jp) :
   l0 = l0 / tf 
   
   return l0
+
+def find_peaks_det(t, x) :
+  """
+  Find peaks in the data by looking at the differentiated serie.  
+
+  Parameters :
+  - t : Float array. The time series.
+  - x : Float 2D array. The dependent variables.
+  Returns :
+  - t_peaks : the times of peaks
+  - x_peaks : the values of peaks
+
+  """
+  n = np.shape(t)[0]
+  k = np.shape(x)[1]
+  
+  diff_x = x[1:] - x[:-1]
+  pos = np.where(diff_x > 0)
+  neg = np.where(diff_x < 0)
+  
+  peaks = np.where(
+          np.logical_and(
+          np.roll(diff_x, shift=1, axis=0)[:-1] > 0, diff_x[:-1] < 0
+          )
+          )
+  
+  t_peaks = t[peaks[0]]
+  x_peaks = x[peaks]
+
+  return t_peaks, x_peaks
+
+
+def find_peaks_noise(win, t, x) :
+  """
+  Find peaks in the data via moving polynomial regression  
+
+  Parameters :
+  - win : Float. The time window over which to regress.
+  - t : Float array. The time series.
+  - x : Float 2D array. The dependent variables.
+  Returns :
+  - t_peaks : the times of peaks
+  - x_peaks : the values of peaks
+  - lr : the likelihood ratios
+
+  """
+  # Fit a 2nd degree polynomial on a window of like 1 month
+  # Actually we want to do all this only on the I data right ?
+  # So we're only passing the I data in x
+  n = np.shape(t)[0]
+  k = np.shape(x)[1]
+  print("k", k)
+  print("n", n)
+  t_peaks = [list()] * k
+  x_peaks = [list()] * k
+  lra = np.zeros( [n, k] )
+  l01a = np.zeros( [n, 2, k] )
+  tl = list()
+  x0l = list()
+  x1l = list()
+
+  for i, ti in enumerate(t) :
+    start = i
+    try :
+      end = np.where(t > ti + win)[0][0] # first index that passes the window
+    except IndexError :
+      # we've reached the last window
+      break
+    twin, xwin = t[start:end], x[start:end, :]
+    p0, res0, _, _, _ = np.polyfit(twin, xwin, 1, full=True)
+    p1, res1, _, _, _ = np.polyfit(twin, xwin, 2, full=True)
+
+    sig0 = np.sqrt(res0 / (end - start))
+    sig1 = np.sqrt(res1 / (end - start))
+
+    # need to repeat t so that dimensiosn are ok
+    twin_r = np.repeat(twin[:, np.newaxis], k, axis=1)
+    l0a = 1 / (np.sqrt(2 * np.pi) * sig0) \
+          * np.exp(- (xwin - p0[0] * twin_r - p0[1]) ** 2 / (2 * sig0 ** 2))
+    l1a = 1 / (np.sqrt(2 * np.pi) * sig1) \
+          * np.exp(- (xwin - p1[0] * twin_r ** 2 - p1[1] * twin_r - p1[2]) ** 2 / (2 * sig1 ** 2))   # likelihood ratio array
+    # compute the statistic
+    
+    l0 = np.prod(l0a, axis=0)
+    l1 = np.prod(l1a, axis=0)
+    lr = -2 * np.sum(np.log(l1a) - np.log(l0a), axis=0)
+    # with a type 1 error of 1 % : compare to 6.64
+    maxi = np.argmax(xwin, axis=0)
+    tmax = twin_r[maxi]
+    xmax = xwin[maxi]
+    sel_polyfit = np.logical_and(lr > 6.64, p1[0] < 0) 
+    try :
+      selection = np.logical_and(sel_polyfit, xmax != [ l[-1] for l in x_peaks ])
+    except IndexError : # the first time, the lists are empty
+      selection = sel_polyfit
+    #print("sel", selection)
+    #print("s0s1", sig0, sig1)
+    #print("p0p1", p0, p1)
+    #print("l0l1", l0, l1)
+    #print("lr", lr)
+  
+    t_peaks = [ l + tmax[i] if selection[i] == True else l for i, l in enumerate(t_peaks) ]
+    x_peaks = [ l + xmax[i] if selection[i] == True else l for i, l in enumerate(x_peaks) ]
+    #lr = [ l + lr[i] for i, l in enumerate(lr_peaks) ]
+    lra[i] = lr
+    l01a[i, 0] = l0
+    l01a[i, 1] = l1
+    tl.append(twin)
+    x0l.append(p0[0] * twin + p0[1])
+    x1l.append(p1[0] * twin ** 2 + p1[1] * twin + p1[2])
+
+  return t_peaks, x_peaks, lra, l01a, tl, x0l, x1l

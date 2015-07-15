@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 full_t_ser = stdin_to_array()
 t_ser = cut_transient(365 * 100, full_t_ser)
 n = (np.shape(t_ser)[1] - 2) / 2 # normally necessarily an integer
+print("n", n)
 t = t_ser[:, 0]
 h = t_ser[:, 1]
 x = t_ser[:, 2 : n + 2]

@@ -16,8 +16,10 @@ t_ser = full_t_ser
 
 t = t_ser[:, 0] / 365
 h = t_ser[:, 1]
-n = (np.shape(t_ser)[1] - 2) / 2 # normally necessarily an integer
-m = n / 3
+n = (np.shape(t_ser)[1] - 2) // 2 # normally necessarily an integer
+m = n // 3
+print("n :", n)
+print("m :", m)
 x = t_ser[:, 2 : n + 2]
 
 n_hosts = np.sum(x, axis=1)
@@ -32,8 +34,13 @@ ax1.plot(t, n_hosts)
 
 f2 = plt.figure()
 ax2 = f2.add_subplot(111)
-ax2.plot(t, s, "r")
-ax2.plot(t, i, "b")
-ax2.plot(t, r, "y")
+ax2.plot(t, s)
+ax2.plot(t, i)
+ax2.plot(t, r)
+
+f3 = plt.figure()
+ax3 = f3.add_subplot(111)
+for i in range(m) :
+  ax3.plot(t, x[:, m + i])
 
 plt.show()
