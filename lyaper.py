@@ -186,6 +186,7 @@ def find_peaks_noise(win, t, x) :
   t_peaks = [list()] * k
   x_peaks = [list()] * k
   lra = np.zeros( [n, k] )
+  sel = np.zeros( [n, k] )
   l01a = np.zeros( [n, 2, k] )
   tl = list()
   x0l = list()
@@ -215,30 +216,34 @@ def find_peaks_noise(win, t, x) :
     
     l0 = np.prod(l0a, axis=0)
     l1 = np.prod(l1a, axis=0)
-    lr = -2 * np.sum(np.log(l1a) - np.log(l0a), axis=0)
+    lr = -2 * np.sum(np.log(l0a) - np.log(l1a), axis=0)
     # with a type 1 error of 1 % : compare to 6.64
     maxi = np.argmax(xwin, axis=0)
     tmax = twin_r[maxi]
     xmax = xwin[maxi]
-    sel_polyfit = np.logical_and(lr > 6.64, p1[0] < 0) 
-    try :
-      selection = np.logical_and(sel_polyfit, xmax != [ l[-1] for l in x_peaks ])
-    except IndexError : # the first time, the lists are empty
-      selection = sel_polyfit
-    #print("sel", selection)
-    #print("s0s1", sig0, sig1)
-    #print("p0p1", p0, p1)
-    #print("l0l1", l0, l1)
-    #print("lr", lr)
-  
-    t_peaks = [ l + tmax[i] if selection[i] == True else l for i, l in enumerate(t_peaks) ]
-    x_peaks = [ l + xmax[i] if selection[i] == True else l for i, l in enumerate(x_peaks) ]
-    #lr = [ l + lr[i] for i, l in enumerate(lr_peaks) ]
+    #sel_polyfit = np.logical_and(lr > 6.64, p1[0] < 0)
+    sel_polyfit = np.logical_and(lr > 30, p1[0] < 0)
     lra[i] = lr
+    sel[i] = sel_polyfit
     l01a[i, 0] = l0
     l01a[i, 1] = l1
     tl.append(twin)
     x0l.append(p0[0] * twin + p0[1])
     x1l.append(p1[0] * twin ** 2 + p1[1] * twin + p1[2])
+  print(np.sum(sel))
+  lows = np.where(np.logical_and(sel[:-1], 
+                        np.logical_not(np.roll(sel, shift=-1, axis=0)[:-1])))
+  highs = np.where(np.logical_and(np.logical_not(sel[:-1]), 
+                         np.roll(sel, shift=-1, axis=0)[:-1]))
 
-  return t_peaks, x_peaks, lra, l01a, tl, x0l, x1l
+  # problem : has to work if k > 1
+  #maxi = np.array( 
+  #          [ np.argmax(x[low:high], axis=0) for low, high in zip(lows[0], highs[0]) ] 
+  #               )
+
+  #t_peaks = [ np.append(l, tmax[j]) if selection[j] else l for j, l in enumerate(t_peaks) ]
+  #x_peaks = [ np.append(l, xmax[j]) if selection[j] else l for j, l in enumerate(x_peaks) ]
+    # pas mal mais il vaut mieux se baser sur des points successifs ayant le fit
+    # et prendre que un point là-dessus ?
+
+  return t_peaks, x_peaks, lra, lows, highs#, l01a, tl, x0l, x1l

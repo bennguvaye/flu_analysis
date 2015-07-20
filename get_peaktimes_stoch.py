@@ -20,14 +20,29 @@ from lyaper import *
 import numpy
 import sys
 import argparse
+import matplotlib.pyplot as plt
 
 full_t_ser = stdin_to_array()
-t_ser = cut_transient(365 * 50, full_t_ser)
+t_ser = cut_transient(365 * 1, full_t_ser)
 n = (np.shape(t_ser)[1] - 1)
 t = t_ser[:, 0]
 x = t_ser[:, 1 : n + 1]
 
-t_p, x_p = find_peaks_det(t, x[:, 1:2]) # for sss
+t_p, x_p, lr, low, high = find_peaks_noise(56, t, x[:, 1:2]) # for sss
+#t_p, x_p = find_peaks_det(t, x[:, 1:2])
+
+print(t_p)
+
+f = plt.figure()
+a0 = f.add_subplot(211)
+a0.plot(t, x[:, 1])
+a0.plot(t_p[0], x_p[0], ".")
+a0.plot(t[low[0]], x[:, 1:2][low], ".")
+a0.plot(t[high[0]], x[:, 1:2][high], ".")
+a1 = f.add_subplot(212)
+a1.plot(t, lr)
+
+plt.show()
 
 interpeak = t_p[1:] - t_p[:-1]
 per = np.mean(interpeak)

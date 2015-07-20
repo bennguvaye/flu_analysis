@@ -49,7 +49,7 @@ elif args['fit'] == "theo" :
     "-N 1000000 -R0 5. -nu 0.125 -g 0.000196 -e 0.35 -etaN 0.0000001"
 elif args['fit'] == "idf" :
   args['par_string'] = \
-    "-N 10000000 -R0 1.96 -nu 0.336 -g 0.167 -e 0.13 -etaN 0.0000122"
+    "-N 10000000 -R0 1.96 -nu 0.336 -g 0.000457 -e 0.13 -etaN 0.0000122"
 else :
   args['par_string'] = \
     "-N 1822438 -R0 1.6 -nu 0.336 -g 0.000457 -e 0.12 -etaN 0.00000713"
@@ -58,10 +58,15 @@ if not (args['y'], args['ymin'], args['ymax']) == (None, None, None) \
    or (args['y'] is not None and args['ymin'] is not None and args['ymax'] is not None) :
   raise ValueError("All or none of y, ymin and ymax must be set !")
 
+if args['exe'] == "sss" or args['exe'] == "dss" :
+  args['mode'] = "stoch"
+else :
+  args['mode'] = "det"
+
 if (args['y'], args['ymin'], args['ymax']) == (None, None, None) :
   args['npoints'] = str(int(args['res']))
   sys.stdout.write(
-"""python3 span_pars.py --prefix "/import/ec_ecologie/bnguyen/flu/ocaml/sim_{exe}.native -tf 73000 {par_string} " -x {x} {res} {xmin} {xmax} --transfo trans_default --suffix " | /usr/bin/python /import/ec_ecologie/bnguyen/flu/python/get_peaktimes_det.py >> /import/ec_ecologie/bnguyen/flu/data/{exe}_{x}_{npoints}" --header '''#!/usr/bin/zsh
+"""python3 span_pars.py --prefix "/import/ec_ecologie/bnguyen/flu/ocaml/sim_{exe}.native -tf 73000 {par_string} " -x {x} {res} {xmin} {xmax} --transfo trans_default --suffix " | /usr/bin/python /import/ec_ecologie/bnguyen/flu/python/get_peaktimes_{mode}.py >> /import/ec_ecologie/bnguyen/flu/data/{exe}_{x}_{npoints}" --header '''#!/usr/bin/zsh
 /usr/bin/touch /import/ec_ecologie/bnguyen/flu/data/{exe}_{x}_{npoints}''' --nfiles {nfiles} --root_path ../scripts/{exe}_{x}_{npoints} --save_pars_mat ../../data/{exe}_{x}_{npoints}_pars.csv\n""".format(**args))
 
 else :

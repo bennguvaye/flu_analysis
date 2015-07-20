@@ -19,9 +19,11 @@ C_prog_arg = sys.argv[2]
 
 strain_0_file = root_path + "/" + C_prog_arg + "/J0.0." + C_prog_arg
 strain_1_file = root_path + "/" + C_prog_arg + "/J1.0." + C_prog_arg
+Nc_file = "/home/queue/Documents/2015stage/code/C/data/N.dat"
 
 strain_0 = np.genfromtxt(strain_0_file, delimiter="\t")
 strain_1 = np.genfromtxt(strain_1_file, delimiter="\t")
+Nca = np.genfromtxt(Nc_file)
 
 n = np.shape(strain_0)[0]
 dt = 0.25 # see in pandemics.h
@@ -30,22 +32,45 @@ prntime = 56 # see in pandemics.h
 t = np.linspace(0, n * dt * prntime / 365, n)
 
 # we cut the transient (first 2 years)
-strain_0 = strain_0[np.where(t > 2)]
-strain_1 = strain_1[np.where(t > 2)]
-t = t[np.where(t > 2)]
+strain_0 = strain_0[np.where(t > 0)] / Nca[np.newaxis, :] * 100000
+strain_1 = strain_1[np.where(t > 0)] / Nca[np.newaxis, :] * 100000
+t = t[np.where(t > 0)]
 
 print(np.shape(t))
 print(np.shape(strain_0))
 print(np.shape(strain_1))
 
 # we start by plotting the aggregated (on cities) data for both strains
+c0 = 237 
+n0 = "New-York"
+c1 = 256
+n1 = "Washington"
+c2 = 137 
+n2 = "Mexico"
+c3 = 0  
+n3 = "Buenos Aires"
+c4 = 163 
+n4 = "Singapour"
+c5 = 9 
+n5 = "Sydney"
+c6 = 67
+n6 = "Havane"
+c7 = 3
+n7 = "Cairns"
+
+cl = [c0, c1, c2, c3, c4, c5, c6, c7]
+nl = [n0, n1, n2, n3, n4, n5, n6, n7]
+ic = list()
+for i in range(8) :
+  ic.append([strain_0[:, cl[i]], strain_1[:, cl[i]], strain_0[:, cl[i]] + strain_1[:, cl[i]]])
+
 i0 = np.sum(strain_0, axis=1)
 i1 = np.sum(strain_1, axis=1)
 
-f1 = plt.figure()
-a1 = f1.add_subplot(111)
-p1 = a1.plot(t, i0)
-p2 = a1.plot(t, i1)
+#f1 = plt.figure()
+#a1 = f1.add_subplot(111)
+#p1 = a1.plot(t, i0)
+#p2 = a1.plot(t, i1)
 
 # we can also plot the time series as a pcolormesh. Why not.
 c = np.arange(260)
@@ -53,13 +78,20 @@ c = np.arange(260)
 # on voit pas des tonnes les deux phases...
 # aussi faire les deux souches indépendamment pour voir si ya quelque chose à voir
 
-f2 = plt.figure()
-a2 = f2.add_subplot(111)
-p3 = a2.pcolormesh(t, c, np.transpose(strain_0 + strain_1), cmap=color_map)
-plt.colorbar(p3)
+#f2 = plt.figure()
+#a2 = f2.add_subplot(111)
+#p3 = a2.pcolormesh(t, c, np.transpose(strain_0 + strain_1), cmap=color_map)
+#plt.colorbar(p3)
+
+cols = ["blue", "red", "black"]
+for i in range(8) :
+  f = plt.figure()
+  a = f.add_subplot(111)
+  for j in range(3) :
+    a.plot(t, ic[i][j], cols[j])
+  a.set_title(nl[i])
 
 plt.show()
-
 #
 #
 #it = np.nditer([ia, ja, la, p_cntr_peak_a, p_cntr_force_a, 
