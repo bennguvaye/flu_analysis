@@ -185,6 +185,7 @@ def find_peaks_noise(win, t, x) :
   print("n", n)
   t_peaks = [list()] * k
   x_peaks = [list()] * k
+  ends = np.zeros( [n, k] )
   lra = np.zeros( [n, k] )
   sel = np.zeros( [n, k] )
   l01a = np.zeros( [n, 2, k] )
@@ -199,6 +200,7 @@ def find_peaks_noise(win, t, x) :
     except IndexError :
       # we've reached the last window
       break
+    ends[i] = end
     twin, xwin = t[start:end], x[start:end, :]
     p0, res0, _, _, _ = np.polyfit(twin, xwin, 1, full=True)
     p1, res1, _, _, _ = np.polyfit(twin, xwin, 2, full=True)
@@ -222,7 +224,7 @@ def find_peaks_noise(win, t, x) :
     tmax = twin_r[maxi]
     xmax = xwin[maxi]
     #sel_polyfit = np.logical_and(lr > 6.64, p1[0] < 0)
-    sel_polyfit = np.logical_and(lr > 30, p1[0] < 0)
+    sel_polyfit = np.logical_and(lr > 100, p1[0] < 0)
     lra[i] = lr
     sel[i] = sel_polyfit
     l01a[i, 0] = l0
@@ -230,16 +232,16 @@ def find_peaks_noise(win, t, x) :
     tl.append(twin)
     x0l.append(p0[0] * twin + p0[1])
     x1l.append(p1[0] * twin ** 2 + p1[1] * twin + p1[2])
-  print(np.sum(sel))
   lows = np.where(np.logical_and(sel[:-1], 
                         np.logical_not(np.roll(sel, shift=-1, axis=0)[:-1])))
   highs = np.where(np.logical_and(np.logical_not(sel[:-1]), 
                          np.roll(sel, shift=-1, axis=0)[:-1]))
-
+  highs = (ends[highs].astype(int), highs[1])
   # problem : has to work if k > 1
-  #maxi = np.array( 
-  #          [ np.argmax(x[low:high], axis=0) for low, high in zip(lows[0], highs[0]) ] 
-  #               )
+  maxi = np.array( 
+            [ 
+              [ np.argmax(x[l0:h0, j], axis=0) for l1low, high in zip(lows[0], highs[0]) ] 
+                 )
 
   #t_peaks = [ np.append(l, tmax[j]) if selection[j] else l for j, l in enumerate(t_peaks) ]
   #x_peaks = [ np.append(l, xmax[j]) if selection[j] else l for j, l in enumerate(x_peaks) ]

@@ -25,7 +25,9 @@ def header_transfo(s, i) :
                 s)
 
 def prefix_transfo(s, i, j) :
-  return s
+  return re.sub(r'''glob_ind''',
+                str(i),
+                s)
 
 # append to the right file, after adding "i, j, " at the beginning of the line
 def suffix_transfo(s, i, j) :
