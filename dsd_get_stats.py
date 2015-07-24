@@ -13,9 +13,10 @@ full_t_ser = stdin_to_array()
 #t_ser = cut_transient(365 * 100, full_t_ser)
 t_ser = full_t_ser
 
-t = t_ser[:,0] / 365
-h = t_ser[:,1]
-x = t_ser[:,2:14]
+t = t_ser[:, 0] / 365
+h = t_ser[:, 1]
+x = t_ser[:, 2:14]
+dx = t_ser[:, 14:]
 
 n = np.sum(x, axis=1)
 s = np.sum(x[:, 0:3], axis=1)
@@ -33,5 +34,10 @@ ax2.plot(t, s, "r")
 ax2.plot(t, i, "b")
 ax2.plot(t, q, "g")
 ax2.plot(t, r, "y")
+
+f3 = plt.figure()
+ax3 = f3.add_subplot(111)
+for i in range(12) :
+  ax3.plot(t, dx[:, i])
 
 plt.show()

@@ -97,6 +97,9 @@ def det_jump_points(dx) :
   """
   Finds indices in the time series where the 2 norm of the variation jumps.a
 
+  Returns :
+  - jp : the jump indices
+
   """
   l = np.shape(dx)[0]
   nds = norm2(dx)  # norm of variations # check that norm2 does what we want
@@ -238,10 +241,10 @@ def find_peaks_noise(win, t, x) :
                          np.roll(sel, shift=-1, axis=0)[:-1]))
   highs = (ends[highs].astype(int), highs[1])
   # problem : has to work if k > 1
-  maxi = np.array( 
-            [ 
-              [ np.argmax(x[l0:h0, j], axis=0) for l1low, high in zip(lows[0], highs[0]) ] 
-                 )
+  maxi = np.array([
+              np.argmax(x[l0:h0, j], axis=0) for (l0, h0, l1, h1) 
+                in zip(lows[0], highs[0], lows[1], highs[1])
+                 ])
 
   #t_peaks = [ np.append(l, tmax[j]) if selection[j] else l for j, l in enumerate(t_peaks) ]
   #x_peaks = [ np.append(l, xmax[j]) if selection[j] else l for j, l in enumerate(x_peaks) ]

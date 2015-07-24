@@ -21,6 +21,7 @@ m = n // 3
 print("n :", n)
 print("m :", m)
 x = t_ser[:, 2 : n + 2]
+dx = t_ser[:, n + 2:]
 
 n_hosts = np.sum(x, axis=1)
 
@@ -42,5 +43,17 @@ f3 = plt.figure()
 ax3 = f3.add_subplot(111)
 for i in range(m) :
   ax3.plot(t, x[:, m + i])
+
+f4 = plt.figure()
+ax4 = f4.add_subplot(111)
+for i in range(3) :
+  for k in range(m) :
+    if i == 0 :
+      c = "red"
+    elif i == 1 :
+      c = "blue"
+    else :
+      c = "green"
+    ax4.plot(t, dx[:, m * i + k], c)
 
 plt.show()

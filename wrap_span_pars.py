@@ -15,7 +15,7 @@ parser.add_argument("--fit",
                     help="the set of parameter values that should be used")
 
 parser.add_argument("--exe", 
-                    choices=["ssd", "dsd", "sss", "dss", "assd"],
+                    choices=["ssd", "dsd", "sss", "dss", "assd", "adsd"],
                     default="ssd",
                     help="the identifier of the executable.")
 
@@ -54,9 +54,12 @@ else :
   args['par_string'] = \
     "-N 1822438 -R0 1.6 -nu 0.336 -g 0.000457 -e 0.12 -etaN 0.00000713"
 
-if not (args['y'], args['ymin'], args['ymax']) == (None, None, None) \
-   or (args['y'] is not None and args['ymin'] is not None and args['ymax'] is not None) :
-  raise ValueError("All or none of y, ymin and ymax must be set !")
+if not ((args['y'], args['ymin'], args['ymax']) == (None, None, None) \
+   or (args['y'] is not None and args['ymin'] is not None and args['ymax'] is not None)) :
+  raise ValueError("All or none of y, ymin and ymax must be set : " 
+                   + str(args['y']) + ", " 
+                   + str(args['ymin']) + ", " 
+                   + str(args['ymax']))
 
 if args['exe'] == "sss" or args['exe'] == "dss" :
   args['mode'] = "stoch"
