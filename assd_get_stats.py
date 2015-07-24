@@ -24,14 +24,19 @@ x = t_ser[:, 2 : n + 2]
 dx = t_ser[:, n + 2:]
 
 n_hosts = np.sum(x, axis=1)
+n_dhosts = np.sum(dx, axis=1)
+
+jp = det_jump_points(dx)
 
 s = np.sum(x[:, 0 : m], axis=1)
 i = np.sum(x[:, m : 2 * m], axis=1)
 r = np.sum(x[:, 2 * m : 3 * m], axis=1)
 
 f1 = plt.figure()
-ax1 = f1.add_subplot(111)
-ax1.plot(t, n_hosts)
+ax0 = f1.add_subplot(211)
+ax0.plot(t, n_hosts)
+ax1 = f1.add_subplot(212)
+ax1.plot(t, n_dhosts)
 
 f2 = plt.figure()
 ax2 = f2.add_subplot(111)
@@ -55,5 +60,6 @@ for i in range(3) :
     else :
       c = "green"
     ax4.plot(t, dx[:, m * i + k], c)
+ax4.plot(t[jp], np.zeros_like(t[jp]), 'o')
 
 plt.show()

@@ -44,6 +44,7 @@ args['npoints'] = str(int(args['res']))
 # do a Rscript before to change par values. Would that work ?
 sys.stdout.write(
 """python3 span_pars.py --prefix "/usr/bin/Rscript /import/ec_ecologie/bnguyen/flu/C/data/params.r {par_string} glob_ind" -x {x} {res} {xmin} {xmax} --transfo trans_C --suffix '''
-/import/ec_ecologie/bnguyen/flu/C/src/pandemics.native {start_ind} glob_ind''' --header '''#!/usr/bin/zsh
-/bin/mkdir /import/ec_ecologie/bnguyen/flu/C/src/{start_ind} glob_ind''' --nfiles {npoints} --root_path ../scripts/C_{x}_{npoints} --save_pars_mat ../../data/C_{x}_{npoints}_pars.csv\n""".format(**args))
+./pandemics.native {start_ind} glob_ind''' --header '''#!/usr/bin/zsh
+cd /import/ec_ecologie/bnguyen/flu/C/src
+/bin/mkdir {start_ind} glob_ind''' --nfiles {npoints} --root_path ../scripts/C_{x}_{npoints} --save_pars_mat ../../data/C_{x}_{npoints}_pars.csv\n""".format(**args))
 
