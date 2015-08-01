@@ -4,8 +4,10 @@
 # FIXME change the shebang on the cluster
 
 import numpy as np
+import pandas as pd
+import sklearn.decomposition as skd
 import sys
-import fileinput
+#import fileinput
 
 def rfftfreq(n, d=1.0):
   """
@@ -44,16 +46,20 @@ def stdin_to_array() :
   Reads a csv file from stdin. 
 
   """
-  a = np.genfromtxt(fileinput.input(mode='rb'), delimiter=",", skip_header=1)
-  return a
+  # FIXME : next two lines : way not robust enough
+  strinfo = sys.stdin.readline()
+  [strn, strm] = strinfo.split(",")
+  info = {'n':int(strn.split("=")[1]), 'm':int(strm.split("=")[1])}
+  data = pd.read_csv(sys.stdin, sep=",")
+
+  return info, data
 
 def cut_transient(t_end_transient, t_ser) :
   """
   Cut part of a time series out (from time 0 to time t_end_transient)
   
   """
-  inds_sel = np.where(t_ser[:,0] > t_end_transient)
-  new_t_ser = t_ser[inds_sel]
+  new_t_ser = t_ser[t_ser['t'] > t_end_transient]
   
   return new_t_ser
 
@@ -91,6 +97,20 @@ def norm2(x) :
   else :
     nsq = np.inner(x,x)
   return np.sqrt(nsq)
+
+def embedd(data, m, lag) :
+  trunc_data_end = data[:-m * lag]
+  emb = np.zeros( np.shape(trunc_data_end) + (m,) )
+  for i in range(m) :
+    emb[..., i] = np.roll(data, - i * lag)[:-m * lag]
+
+  return emb
+
+def pca_2(emb) :
+  pcaer = skd.PCA(n_components=2)
+  pca = pcaer.fit_transform(emb)
+  
+  return pca
 
 # function that determines jump points in dS, dI, dR
 def det_jump_points(dx) :

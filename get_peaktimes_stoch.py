@@ -22,11 +22,12 @@ import sys
 import argparse
 import matplotlib.pyplot as plt
 
-full_t_ser = stdin_to_array()
+info, full_t_ser = stdin_to_array()
 t_ser = cut_transient(365 * 1, full_t_ser)
-n = (np.shape(t_ser)[1] - 1)
+n = info['n']
+m = info['m']
 t = t_ser[:, 0]
-x = t_ser[:, 1 : n + 1]
+x = t_ser[:, m + 1 : n + m + 1]
 
 t_p, x_p, lr, low, high = find_peaks_noise(56, t, x[:, 1:2]) # for sss
 #t_p, x_p = find_peaks_det(t, x[:, 1:2])

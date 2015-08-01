@@ -25,7 +25,7 @@ import seaborn as sb
 
 #color_map = cm.cubehelix
 color_map = sb.cubehelix_palette(start=0.1, 
-                                 rot=0.7, 
+                                 rot=0.8, 
                                  gamma=1.2, 
                                  light=0.85,
                                  dark=0.15,
