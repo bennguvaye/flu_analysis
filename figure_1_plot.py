@@ -74,5 +74,6 @@ g0.map_dataframe(plot_tseries_index, "I_like")
 
 g1 = sb.FacetGrid(data_pca, col="origin", col_wrap=4, sharex=False, sharey=False)
 g1.map(plt.plot, "pc1", "pc2")
+# FIXME problem : trend for usa...
 
 plt.show()
