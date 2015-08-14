@@ -13,13 +13,15 @@ t_ser = cut_transient(365 * 100, full_t_ser)
 n = info['n'] // 2 # normally necessarily an integer
 m = info['m']
 #print("n", n)
-t = t_ser['t'].values
-h = t_ser['h'].values
-
-x = t_ser.values[:, 2 + m : n + 2 + m]
+#t = t_ser['t'].values
+#h = t_ser['h'].values
+t = t_ser['t']
+h = t_ser['h']
+t_ser_vals = t_ser.view((float, len(t_ser.dtype.names)))
+x = t_ser_vals[:, 2 + m : n + 2 + m]
 diff_x = x[1:] - x[:-1] # differentiated time series
 diff_t = t[1:]
-dx = t_ser.values[:, n + 2 + m :]
+dx = t_ser_vals[:, n + 2 + m :]
 jp = det_jump_points(dx)
 l0 = lyap_exp(t, h, dx, jp)
 perconf = compute_period(t, x)

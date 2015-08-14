@@ -4,7 +4,7 @@
 # FIXME change the shebang on the cluster
 
 import numpy as np
-import pandas as pd
+#import pandas as pd
 import sklearn.decomposition as skd
 import sys
 #import fileinput
@@ -50,7 +50,7 @@ def stdin_to_array() :
   strinfo = sys.stdin.readline()
   [strn, strm] = strinfo.split(",")
   info = {'n':int(strn.split("=")[1]), 'm':int(strm.split("=")[1])}
-  data = pd.read_csv(sys.stdin, sep=",")
+  data = np.genfromtxt(sys.stdin, delimiter=",", names=True)
 
   return info, data
 
