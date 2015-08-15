@@ -15,7 +15,7 @@ parser.add_argument("--fit",
                     help="the set of parameter values that should be used")
 
 parser.add_argument("--exe", 
-                    choices=["ssd", "dsd", "sss", "dss", "assd", "adsd"],
+                    choices=["ssd", "dsd", "sss", "dss", "assd", "adsd", "cassd", "cadsd"],
                     default="ssd",
                     help="the identifier of the executable.")
 
