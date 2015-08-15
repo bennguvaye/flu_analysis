@@ -136,6 +136,34 @@ eta = ntransp.pivot(index="from_by_zone", columns="to_by_zone", values="flow")
 #                or (s == "to_zone")
 #                or (s == "flow"),
 #        axis=1)
+eta = eta.fillna(value=0)
+
+for tbz in (np.arange(260) + 1) :
+  try :
+    eta.loc[:, tbz]
+  except KeyError :
+    eta.loc[:, tbz] = 0
+
+for fbz in (np.arange(260) + 1) :
+  try :
+    eta.loc[fbz, :]
+  except KeyError :
+    eta.loc[fbz, :] = 0
+
+eta = eta.sort()
+
+for fbz in np.arange(260) + 1 :
+  for tbz in np.arange(260) + 1 :
+    if eta.loc[fbz, tbz] != eta.loc[tbz, fbz] :
+      if eta.loc[fbz, tbz] == 0 :
+        eta.loc[fbz, tbz] = eta.loc[tbz, fbz]
+      elif eta.loc[tbz, fbz] == 0 :
+        eta.loc[tbz, fbz] = eta.loc[fbz, tbz]
+      else :
+        print(fbz, tbz, eta.loc[fbz, tbz], eta.loc[tbz, fbz])
+        raise ValueError("The matrix can't be made diagonal")
+
+eta = eta.sort()
 
 cities = cities.sort("zone")
 cities["by_zone"] = by_zone
