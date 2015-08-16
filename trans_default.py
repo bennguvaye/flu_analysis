@@ -15,7 +15,8 @@ def g_transfo(y) :
 
 
 vars_transfo = {'e':e_transfo, 
-                'etaN':etaN_transfo, 'etaN1':etaN_transfo, 'etaN2':etaN_transfo,
+                'etaN':etaN_transfo, 'etaN1':etaN_transfo, 
+                'etaN2':etaN_transfo, 'sceta':etaN_transfo,
                 'g':g_transfo, 'g1':g_transfo, 'g2':g_transfo}
 
 # create the right file

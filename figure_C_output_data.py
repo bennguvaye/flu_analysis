@@ -163,7 +163,17 @@ for fbz in np.arange(260) + 1 :
         print(fbz, tbz, eta.loc[fbz, tbz], eta.loc[tbz, fbz])
         raise ValueError("The matrix can't be made diagonal")
 
-eta = eta.sort()
+eta = eta.sort(axis=1)
+
+# compute the mean rate of immigration per habitant across cities
+eta_nrm = eta.copy()
+for tbz in np.arange(260) + 1 :
+  eta_nrm.loc[:, tbz] = eta.loc[:, tbz] / Nca[tbz - 1]
+
+eta_tot = eta_nrm.sum(axis=0)
+eta_mean = eta_tot.mean()
+eta = eta / eta_mean
+# WARNING ! This makes for very high rates
 
 cities = cities.sort("zone")
 cities["by_zone"] = by_zone
