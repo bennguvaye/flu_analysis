@@ -27,10 +27,14 @@ n = info['n'] // 2
 m = info['m']
 t = t_ser['t']
 h = t_ser['h']
+try :
+  inc = t_ser['inc']
+except ValueError :
+  inc = t_ser['inc1'] + t_ser['inc2']
 t_ser_vals = t_ser.view((float, len(t_ser.dtype.names)))
-x = t_ser_vals[:, 2 + m : n + 2 + m]
+#x = t_ser_vals[:, 2 + m : n + 2 + m]
 
-t_p, x_p = find_peaks_det(t, x[:, 1:2]) # for ssd
+t_p, x_p = find_peaks_det(t, inc) # for ssd
 
 interpeak = t_p[1:] - t_p[:-1]
 per = np.mean(interpeak)

@@ -167,7 +167,7 @@ def find_peaks_det(t, x) :
 
   """
   n = np.shape(t)[0]
-  k = np.shape(x)[1]
+  #k = np.shape(x)[1]
   
   diff_x = x[1:] - x[:-1]
   pos = np.where(diff_x > 0)
