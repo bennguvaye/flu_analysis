@@ -4,7 +4,7 @@
 import math
 import re
 
-def e_transfo(x) :
+def id_transfo(x) :
   return x
 
 def etaN_transfo(y) :
@@ -14,7 +14,7 @@ def g_transfo(y) :
   return 1. / (y * 365)
 
 
-vars_transfo = {'e':e_transfo, 
+vars_transfo = {'e':id_transfo, 'R0':id_transfo,
                 'etaN':etaN_transfo, 'etaN1':etaN_transfo, 
                 'etaN2':etaN_transfo, 'sceta':etaN_transfo,
                 'g':g_transfo, 'g1':g_transfo, 'g2':g_transfo}
