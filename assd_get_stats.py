@@ -5,32 +5,39 @@
 # we assume the number of age classes m is 3
 
 from lyaper import *
+from stdin_with_pandas import stdin_to_array
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
 
-full_t_ser = stdin_to_array()
+info, full_t_ser = stdin_to_array()
 
 #t_ser = cut_transient(365 * 100, full_t_ser)
 t_ser = full_t_ser
 
-t = t_ser[:, 0] / 365
-h = t_ser[:, 1]
-n = (np.shape(t_ser)[1] - 2) // 2 # normally necessarily an integer
-m = n // 3
+t = t_ser['t'] / 365
+h = t_ser['h']
+inc = t_ser['inc']
+
+n = info['n'] // 2
+m = info['m']
+
+a = n // 3
+
 print("n :", n)
-print("m :", m)
-x = t_ser[:, 2 : n + 2]
-dx = t_ser[:, n + 2:]
+print("a :", a)
+
+x = t_ser.iloc[:, 2 + m : n + 2 + m]
+dx = t_ser.iloc[:, n + 2 + m :]
 
 n_hosts = np.sum(x, axis=1)
 n_dhosts = np.sum(dx, axis=1)
 
 jp = det_jump_points(dx)
 
-s = np.sum(x[:, 0 : m], axis=1)
-i = np.sum(x[:, m : 2 * m], axis=1)
-r = np.sum(x[:, 2 * m : 3 * m], axis=1)
+s = np.sum(x.iloc[:, 0 : a], axis=1)
+i = np.sum(x.iloc[:, a : 2 * a], axis=1)
+r = np.sum(x.iloc[:, 2 * a : 3 * a], axis=1)
 
 f1 = plt.figure()
 ax0 = f1.add_subplot(211)
@@ -45,21 +52,25 @@ ax2.plot(t, i)
 ax2.plot(t, r)
 
 f3 = plt.figure()
-ax3 = f3.add_subplot(111)
-for i in range(m) :
-  ax3.plot(t, x[:, m + i])
+ax31 = f3.add_subplot(111)
+ax31.plot(t, inc)
+
+#f3 = plt.figure()
+#ax3 = f3.add_subplot(111)
+#for i in range(a) :
+#  ax3.plot(t, x[:, a + i])
 
 f4 = plt.figure()
 ax4 = f4.add_subplot(111)
 for i in range(3) :
-  for k in range(m) :
+  for k in range(a) :
     if i == 0 :
       c = "red"
     elif i == 1 :
       c = "blue"
     else :
       c = "green"
-    ax4.plot(t, dx[:, m * i + k], c)
+    ax4.plot(t, dx.iloc[:, a * i + k], c)
 ax4.plot(t[jp], np.zeros_like(t[jp]), 'o')
 
 plt.show()

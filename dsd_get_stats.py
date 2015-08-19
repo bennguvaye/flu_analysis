@@ -3,10 +3,11 @@
 
 # FIXME change the shebang on the cluster
 
-from lyaper import *
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+from lyaper import *
+from stdin_with_pandas import stdin_to_array
 
 info, full_t_ser = stdin_to_array()
 
