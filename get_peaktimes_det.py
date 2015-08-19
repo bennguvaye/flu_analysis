@@ -23,10 +23,12 @@ import argparse
 
 info, full_t_ser = stdin_to_array()
 t_ser = cut_transient(365 * 100, full_t_ser)
-n = (np.shape(t_ser)[1] - 2) // 2 # normally necessarily an integer
-t = t_ser[:, 0]
-h = t_ser[:, 1]
-x = t_ser[:, 2 : n + 2]
+n = info['n'] // 2
+m = info['m']
+t = t_ser['t']
+h = t_ser['h']
+t_ser_vals = t_ser.view((float, len(t_ser.dtype.names)))
+x = t_ser_vals[:, 2 + m : n + 2 + m]
 
 t_p, x_p = find_peaks_det(t, x[:, 1:2]) # for ssd
 

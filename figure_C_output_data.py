@@ -168,8 +168,8 @@ eta = eta.sort(axis=1)
 # compute the mean rate of immigration per habitant across cities
 eta_nrm = eta.copy()
 for tbz in np.arange(260) + 1 :
-  eta_nrm.loc[:, tbz] = eta.loc[:, tbz] / Nca[tbz - 1]
-
+  eta_nrm.loc[:, tbz] = eta.loc[:, tbz] / (Nca[tbz - 1] / 100)
+  # / 100 : pour le nombre moyen d'infectés (?)
 eta_tot = eta_nrm.sum(axis=0)
 eta_mean = eta_tot.mean()
 eta = eta / eta_mean
@@ -191,6 +191,6 @@ df = pd.merge(left=df,
               right_on='by_zone')
 
 df['inc_nmz'] = df['inc'] / df['population'] * 100000
-df['log(inc)'] = np.log(df['inc_nmz'] + 1)
+df['log(inc)'] = np.log(df['inc_nmz' ] + 1)
 df.to_csv("/home/queue/Documents/2015stage/data/C_g_10_vals.csv")
 eta.to_csv("/home/queue/Documents/2015stage/data/eta.csv")
