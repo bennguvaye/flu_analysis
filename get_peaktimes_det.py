@@ -5,7 +5,7 @@
 """
 This script reads a time series csv from stdin and looks for the peaks
 in the data.
-The data should span longer than 50 years (the first fifty years are discarded).
+The data should span longer than 100 years, which are discarded.
 In its current form, it is only adapted to use with the output of sim_ssd.
 It can be easily adapted to use with other deterministic simulations
 (just change x)

@@ -239,7 +239,7 @@ a11.set_ylabel("")
 a12 = plt.subplot(grid[12, 14:33])
 sb.heatmap(srss_pivot, 
            ax=a12, 
-           xticklabels=52, 
+           xticklabels=104, 
            yticklabels=False,
            cbar_ax=a_cbar,
            vmin=vmin,

@@ -5,7 +5,7 @@
 
 import numpy as np
 #import pandas as pd
-import sklearn.decomposition as skd
+#import sklearn.decomposition as skd
 import sys
 #import fileinput
 
@@ -106,12 +106,6 @@ def embedd(data, m, lag) :
 
   return emb
 
-def pca_2(emb) :
-  pcaer = skd.PCA(n_components=2)
-  pca = pcaer.fit_transform(emb)
-  
-  return pca
-
 # function that determines jump points in dS, dI, dR
 def det_jump_points(dx) :
   """
@@ -203,11 +197,11 @@ def find_peaks_noise(win, t, x) :
   # Actually we want to do all this only on the I data right ?
   # So we're only passing the I data in x
   n = np.shape(t)[0]
-  k = np.shape(x)[1]
-  print("k", k)
-  print("n", n)
-  t_peaks = [list()] * k
-  x_peaks = [list()] * k
+  #k = np.shape(x)[1]
+  k = 1
+  x.shape = (n, k)
+  t_peaks = list()
+  x_peaks = list()
   ends = np.zeros( [n, k] )
   lra = np.zeros( [n, k] )
   sel = np.zeros( [n, k] )
@@ -224,7 +218,7 @@ def find_peaks_noise(win, t, x) :
       # we've reached the last window
       break
     ends[i] = end
-    twin, xwin = t[start:end], x[start:end, :]
+    twin, xwin = t[start:end], x[start:end]
     p0, res0, _, _, _ = np.polyfit(twin, xwin, 1, full=True)
     p1, res1, _, _, _ = np.polyfit(twin, xwin, 2, full=True)
 
@@ -243,9 +237,10 @@ def find_peaks_noise(win, t, x) :
     l1 = np.prod(l1a, axis=0)
     lr = -2 * np.sum(np.log(l0a) - np.log(l1a), axis=0)
     # with a type 1 error of 1 % : compare to 6.64
-    maxi = np.argmax(xwin, axis=0)
-    tmax = twin_r[maxi]
-    xmax = xwin[maxi]
+    #maxi = np.argmax(xwin, axis=0)
+    #tmax = twin_r[maxi]
+    #xmax = xwin[maxi]
+    # the square poly fits much better and is concave
     #sel_polyfit = np.logical_and(lr > 6.64, p1[0] < 0)
     sel_polyfit = np.logical_and(lr > 100, p1[0] < 0)
     lra[i] = lr
@@ -255,20 +250,30 @@ def find_peaks_noise(win, t, x) :
     tl.append(twin)
     x0l.append(p0[0] * twin + p0[1])
     x1l.append(p1[0] * twin ** 2 + p1[1] * twin + p1[2])
-  lows = np.where(np.logical_and(sel[:-1], 
-                        np.logical_not(np.roll(sel, shift=-1, axis=0)[:-1])))
-  highs = np.where(np.logical_and(np.logical_not(sel[:-1]), 
+  lows = np.where(np.logical_and(np.logical_not(sel[:-1]), 
                          np.roll(sel, shift=-1, axis=0)[:-1]))
+  highs = np.where(np.logical_and(sel[:-1], 
+                        np.logical_not(np.roll(sel, shift=-1, axis=0)[:-1])))
   highs = (ends[highs].astype(int), highs[1])
   # problem : has to work if k > 1
+
+  if t[highs[0][0]] < t[lows[0][0]] + win :
+    highs = (highs[0][1:], highs[1][1:])
+  if t[lows[0][-1]] > t[highs[0][-1]] :
+    lows = (lows[0][:-1], lows[1][:-1])
+
   maxi = np.array([
-              np.argmax(x[l0:h0, j], axis=0) for (l0, h0, l1, h1) 
-                in zip(lows[0], highs[0], lows[1], highs[1])
+              l0 + np.argmax(x[l0:h0, l1], axis=0) 
+                for (l0, h0, l1, h1) 
+                in zip(lows[0], highs[0], lows[1], highs[1]) 
+                if (l1 == h1) #and (t[h0] - t[l0] > win) 
                  ])
 
+  t_peaks = t[maxi]
+  x_peaks = x[maxi]
   #t_peaks = [ np.append(l, tmax[j]) if selection[j] else l for j, l in enumerate(t_peaks) ]
   #x_peaks = [ np.append(l, xmax[j]) if selection[j] else l for j, l in enumerate(x_peaks) ]
     # pas mal mais il vaut mieux se baser sur des points successifs ayant le fit
     # et prendre que un point là-dessus ?
 
-  return t_peaks, x_peaks, lra, lows, highs#, l01a, tl, x0l, x1l
+  return t_peaks, x_peaks, lra, lows, highs, maxi, sel #, l01a, tl, x0l, x1l

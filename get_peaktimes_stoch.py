@@ -23,27 +23,42 @@ import argparse
 import matplotlib.pyplot as plt
 
 info, full_t_ser = stdin_to_array()
-t_ser = cut_transient(365 * 1, full_t_ser)
+t_ser = cut_transient(365 * 100, full_t_ser)
+# n = info['n'] // 2 # tmp
 n = info['n']
 m = info['m']
-t = t_ser[:, 0]
-x = t_ser[:, m + 1 : n + m + 1]
+t = t_ser['t']
+try :
+  inc = t_ser['inc']
+except ValueError :
+  inc = t_ser['inc1'] + t_ser['inc2']
+t_ser_vals = t_ser.view((float, len(t_ser.dtype.names)))
+#x = t_ser[:, m + 1 : n + m + 1]
 
-t_p, x_p, lr, low, high = find_peaks_noise(56, t, x[:, 1:2]) # for sss
-#t_p, x_p = find_peaks_det(t, x[:, 1:2])
+t_p, x_p, lr, low, high, maxi, sel = find_peaks_noise(61, t, inc) # for sss
 
-print(t_p)
+#print("lowhighmaxisel")
+#print(low)
+#print(low[0].shape)
+#print(high)
+#print(high[0].shape)
+#print(maxi)
+#print(maxi.shape)
+#print(sel[:200])
 
-f = plt.figure()
-a0 = f.add_subplot(211)
-a0.plot(t, x[:, 1], "-g")
-a0.plot(t_p[0], x_p[0], ".y")
-a0.plot(t[low[0]], x[:, 1:2][low], ".r")
-a0.plot(t[high[0]], x[:, 1:2][high], ".b")
-a1 = f.add_subplot(212)
-a1.plot(t, lr)
-
-plt.show()
+#t_yr = t / 365
+#
+#f = plt.figure()
+#a0 = f.add_subplot(211)
+#a0.plot(t_yr, inc, "-g")
+##a0.plot(t_p, x_p, ".y")
+#a0.plot(t_yr[maxi], inc[maxi], ".y")
+#a0.plot(t_yr[low[0]], inc[low], ".r")
+#a0.plot(t_yr[high[0]], inc[high], ".b")
+#a1 = f.add_subplot(212)
+#a1.plot(t_yr, lr)
+#
+#plt.show()
 
 interpeak = t_p[1:] - t_p[:-1]
 per = np.mean(interpeak)
