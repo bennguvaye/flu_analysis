@@ -37,13 +37,18 @@ t_ser_vals = t_ser.view((float, len(t_ser.dtype.names)))
 t_p, x_p = find_peaks_det(t, inc) # for ssd
 
 interpeak = t_p[1:] - t_p[:-1]
-per = np.mean(interpeak)
+#per = np.mean(interpeak)
 
 approx_x_p = np.round(x_p, decimals=1)
 peak_vals = np.unique(approx_x_p) 
 
-l = len(peak_vals)
+l_1 = len(interpeak)
+l_2 = len(peak_vals)
 
-to_be_written = ("".join(["{}, "] * (l + 1))[:-2] + "\n").format(per, *peak_vals)
+to_be_written_1 = ("".join(["{}, "] * l_1)[:-2] + "//").format(*interpeak)
 # [:-2] : the last characters are ", " and we don't want it (empty field)
-sys.stdout.write(to_be_written) 
+to_be_written_2 = ("".join(["{}, "] * l_2)[:-2] + "\n").format(*peak_vals)
+
+sys.stdout.write(to_be_written_1) 
+sys.stdout.write(to_be_written_2) 
+

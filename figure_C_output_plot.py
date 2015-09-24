@@ -1,21 +1,26 @@
 #!/usr/local/bin/python3.4
 # -*- coding: utf-8 -*-
 
-"""
-This script plots interesting data about the output from the full simulation
-C program.
-
-"""
-
 import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtc
 import matplotlib.gridspec as gs
-from matplotlib.dates import DateFormatter
+#from matplotlib.dates import DateFormatter, YearLocator
 import seaborn as sb
 
+"""
+This script plots interesting data about the output from the full simulation
+C program, reading data from C_new_vals.csv.
+
+"""
+
+# script argument : 10 reps (0-9) to choose from
+rep = int(sys.argv[1])
+
 def to_map_heatmap(*args, **kwargs) :
+  """Heatmap plotting function for FacetGrid."""
   print(args)
   #print(kwargs)
   data = kwargs.pop('data')
@@ -23,78 +28,55 @@ def to_map_heatmap(*args, **kwargs) :
   print(to_plot.head())
   return sb.heatmap(to_plot, **kwargs)
 
-color_map = sb.cubehelix_palette(start=0.1, 
-                                 rot=0.8, 
+def sb_plot(*args, **kwargs) :
+  """Simple plotting function for FacetGrid."""
+  data = kwargs.pop('data')
+  ind = args[0]
+  val = args[1]
+  return data.plot(ind, val, **kwargs)
+
+# Create seaborn colormaps
+color_map_i = sb.cubehelix_palette(start=0.1, 
+                                 rot=0.9, 
                                  gamma=1.2, 
-                                 light=0.85,
+                                 light=0.95,
                                  dark=0.15,
                                  as_cmap=True)
-color_map.set_under(color='white')
-color_map.set_over(color='black')
+color_map_i.set_under(color='white')
+color_map_i.set_over(color='black')
 
-df = pd.read_csv("/home/queue/Documents/2015stage/data/C_g_10_vals.csv")
+color_map_eta = sb.cubehelix_palette(start=0.1, 
+                                 rot=1.5, 
+                                 gamma=1.2, 
+                                 light=0.95,
+                                 dark=0.1,
+                                 as_cmap=True)
+color_map_eta.set_under(color='white')
+color_map_eta.set_over(color='black')
+
+# Read the data
+df = pd.read_csv("/home/queue/Documents/2015stage/data/C_new_vals.csv")
 eta_file = "/home/queue/Documents/2015stage/data/eta.csv"
 eta = pd.read_csv(eta_file)
 
-# we start by plotting the aggregated (on cities) data for both strains
-c0 = 238 
-n0 = "New-York"
-c1 = 257
-n1 = "Washington"
-c2 = 138 
-n2 = "Mexico"
-c3 = 1  
-n3 = "Buenos Aires"
-c4 = 164 
-n4 = "Singapour"
-c5 = 10 
-n5 = "Sydney"
-c6 = 68
-n6 = "Havane"
-c7 = 4
-n7 = "Cairns"
-
-cl = [c0, c1, c2, c3, c4, c5, c6, c7]
-nl = [n0, n1, n2, n3, n4, n5, n6, n7]
-
-c = np.arange(260)
-# TODO arranger les villes dans un ordre bien selon la location géographique
-# on voit pas des tonnes les deux phases...
-# aussi faire les deux souches indépendamment pour voir si ya quelque chose à voir
-
-#f2 = plt.figure()
-#a2 = f2.add_subplot(111)
-#p3 = a2.pcolormesh(t, c, np.transpose(strain_0 + strain_1), cmap=color_map)
-#plt.colorbar(p3)
-
-subs_g = df[df['g_ind'] == 0]
-#subs_mex = df[df['city_newind'] == 1]
-subs_mex = df[df['by_zone'] == 1]
-del df
-subs_rep_st = subs_g[(subs_g['rep']==3) & (subs_g['strain']==1)]
-subs_rep_st = subs_rep_st.select(
+subs_rep = df[(df['rep']==rep)]
+#del df
+subs_rep = subs_rep.select(
          lambda s : ((s == 'by_zone') 
-                     #or (s == 'city_newind') 
+                     #or (s == 'city_newind')
+                     or (s == 'strain')
                      or (s == 't') 
                      or (s == 'zone') 
                      or (s == 'log(inc)')), 
          axis=1)
 
-#subs_rep_st = subs_rep_st.sort('zone')
-#subs_rep_st["by_zone"] = np.arange(subs_rep_st.shape[0])
-print(subs_rep_st.head())
-vmin = subs_rep_st['log(inc)'].min()
-vmax = subs_rep_st['log(inc)'].max()
+print(subs_rep.head())
+vmin = subs_rep['log(inc)'].min()
+vmax = subs_rep['log(inc)'].max()
 
-from_south = (eta['from_by_zone'] <= 20)
-from_tropi = (eta['from_by_zone'] > 20) & (eta['from_by_zone'] <= 80)
-from_north = (eta['from_by_zone'] > 80)
-
-to_south = (eta['from_by_zone'] <= 20)
-to_tropi = (eta['from_by_zone'] > 20) & (eta['from_by_zone'] <= 80)
-to_north = (eta['from_by_zone'] > 80)
-
-# The nine eta submatrices
+# air traffic as log10
+eta = np.log(eta + 1) / np.log(10)
+# The nine eta submatrices (sn : south-north)
 eta_ss = eta.iloc[1:21, 1:21]
 eta_se = eta.iloc[1:21, 21:81]
 eta_sn = eta.iloc[1:21, 81:]
@@ -105,35 +87,46 @@ eta_ns = eta.iloc[81:, 1:21]
 eta_ne = eta.iloc[81:, 21:81]
 eta_nn = eta.iloc[81:, 81:]
 
-subs_rep_st_south = subs_rep_st[subs_rep_st['zone']==-1]
-subs_rep_st_eq = subs_rep_st[subs_rep_st['zone']==0]
-subs_rep_st_north = subs_rep_st[subs_rep_st['zone']==1]
+# Three zones
+subs_rep_south = subs_rep[subs_rep['zone']==-1]
+subs_rep_eq = subs_rep[subs_rep['zone']==0]
+subs_rep_north = subs_rep[subs_rep['zone']==1]
 
-#srs_pivot = subs_rep_st.pivot(index='city_newind', columns='t', values='log(inc)')
-#srs_pivot = subs_rep_st.pivot(index='city_newind', columns='t')
-srs_pivot = subs_rep_st.pivot(index='by_zone', columns='t', values='log(inc)')
-srsn_pivot = subs_rep_st_north.pivot(index='by_zone', columns='t', values='log(inc)')
-srse_pivot = subs_rep_st_eq.pivot(index='by_zone', columns='t', values='log(inc)')
-srss_pivot = subs_rep_st_south.pivot(index='by_zone', columns='t', values='log(inc)')
+srs_pivot = subs_rep.pivot_table(index='by_zone', 
+                                 columns='t', 
+                                 values='log(inc)',
+                                 aggfunc=np.sum)
+srsn_pivot = subs_rep_north.pivot_table(index='by_zone', 
+                                        columns='t', 
+                                        values='log(inc)',
+                                        aggfunc=np.sum)
+srse_pivot = subs_rep_eq.pivot_table(index='by_zone', 
+                                     columns='t', 
+                                     values='log(inc)',
+                                     aggfunc=np.sum)
+srss_pivot = subs_rep_south.pivot_table(index='by_zone', 
+                                        columns='t', 
+                                        values='log(inc)',
+                                        aggfunc=np.sum)
 
-f0 = plt.figure()
-a00 = f0.add_subplot(111)
-sb.heatmap(srs_pivot, ax=a00, xticklabels=30, yticklabels=10)
-
+# Layout
 grid = gs.GridSpec(13, 34)
 
 f1 = plt.figure()
 f1.set_label("log(incidence + 1) for all cities")
 
-# FIXME make eta symmetric ?
-# FIXME add in vmin, vmax...
-# FIXME put that stuff in a for loop
-# FIXME make a clusterplot somehow ? (with the split plot ?)
+# FIXME put that stuff in a for loop # yeah well
+# FIXME make a clusterplot somehow ? (with the split plot ?) 
+  # try it but impossible with the split plot ?
 
+############################# Plot the airflow data ###########################
+# left colorbar
 cbar_eta_ax = plt.subplot(grid[:, 13])
 a1nn = plt.subplot(grid[0:9, 0:9])
+a1nn.set_title("(a)", weight="demi", size="large", loc="left")
 sb.heatmap(eta_nn,
            ax=a1nn,
+           cmap=color_map_eta,
            cbar_ax=cbar_eta_ax,
            xticklabels=False,
            yticklabels=False)
@@ -143,6 +136,7 @@ a1nn.set_ylabel("north")
 a1ne = plt.subplot(grid[0:9, 9:12])
 sb.heatmap(eta_ne,
            ax=a1ne,
+           cmap=color_map_eta,
            cbar_ax=cbar_eta_ax,
            xticklabels=False,
            yticklabels=False)
@@ -152,6 +146,7 @@ a1ne.set_ylabel("")
 a1ns = plt.subplot(grid[0:9, 12])
 sb.heatmap(eta_ns,
            ax=a1ns,
+           cmap=color_map_eta,
            cbar_ax=cbar_eta_ax,
            xticklabels=False,
            yticklabels=False)
@@ -161,6 +156,7 @@ a1ns.set_ylabel("")
 a1en = plt.subplot(grid[9:12, 0:9])
 sb.heatmap(eta_en,
            ax=a1en,
+           cmap=color_map_eta,
            cbar_ax=cbar_eta_ax,
            xticklabels=False,
            yticklabels=False)
@@ -170,6 +166,7 @@ a1en.set_ylabel("tropics")
 a1ee = plt.subplot(grid[9:12, 9:12])
 sb.heatmap(eta_ee,
            ax=a1ee,
+           cmap=color_map_eta,
            cbar_ax=cbar_eta_ax,
            xticklabels=False,
            yticklabels=False)
@@ -179,6 +176,7 @@ a1ee.set_ylabel("")
 a1es = plt.subplot(grid[9:12, 12])
 sb.heatmap(eta_es,
            ax=a1es,
+           cmap=color_map_eta,
            cbar_ax=cbar_eta_ax,
            xticklabels=False,
            yticklabels=False)
@@ -188,6 +186,7 @@ a1es.set_ylabel("")
 a1sn = plt.subplot(grid[12, 0:9])
 sb.heatmap(eta_sn,
            ax=a1sn,
+           cmap=color_map_eta,
            cbar_ax=cbar_eta_ax,
            xticklabels=False,
            yticklabels=False)
@@ -197,6 +196,7 @@ a1sn.set_ylabel("south")
 a1se = plt.subplot(grid[12, 9:12])
 sb.heatmap(eta_se,
            ax=a1se,
+           cmap=color_map_eta,
            cbar_ax=cbar_eta_ax,
            xticklabels=False,
            yticklabels=False)
@@ -206,68 +206,86 @@ a1se.set_ylabel("")
 a1ss = plt.subplot(grid[12, 12])
 sb.heatmap(eta_ss,
            ax=a1ss,
+           cmap=color_map_eta,
            cbar_ax=cbar_eta_ax,
            xticklabels=False,
            yticklabels=False)
 a1ss.set_xlabel("")
 a1ss.set_ylabel("")
+cbar_eta_ax.yaxis.set_ticklabels([])
+
+######################## Plot the full model output data ######################
 
 a_cbar = plt.subplot(grid[:, 33])
-#a10 = f1.add_subplot(311)
 a10 = plt.subplot(grid[0:9, 14:33])
+a10.set_title("(b)", weight="demi", size="large", loc="left")
 sb.heatmap(srsn_pivot, 
            ax=a10, 
            xticklabels=False, 
            yticklabels=False, 
+           cmap=color_map_i,
            cbar_ax=a_cbar,
            vmin=vmin,
            vmax=vmax)
 a10.set_ylabel("")
-#a10.set_ylabel("north")
-#a11 = f1.add_subplot(312)
+a10.set_yticklabels([])
 a11 = plt.subplot(grid[9:12, 14:33])
 sb.heatmap(srse_pivot, 
            ax=a11, 
            xticklabels=False, 
            yticklabels=False,
+           cmap=color_map_i,
            cbar_ax=a_cbar,
            vmin=vmin,
            vmax=vmax)
 a11.set_ylabel("")
-#a11.set_ylabel("tropics")
-#a12 = f1.add_subplot(313)
+a11.set_yticklabels([])
 a12 = plt.subplot(grid[12, 14:33])
 sb.heatmap(srss_pivot, 
            ax=a12, 
-           xticklabels=104, 
+           # reduce the number of ticks
+           xticklabels=260,
            yticklabels=False,
+           cmap=color_map_i,
            cbar_ax=a_cbar,
            vmin=vmin,
            vmax=vmax)
 a12.set_ylabel("")
-#a12.set_ylabel("south") 
-#formatter = DateFormatter('%Y')
-#a12.xaxis.set_major_formatter(formatter)
-a12.xaxis_date()
-f1.autofmt_xdate()
+# plots the time in years
+def fmter(n, pos) :
+  return "{:.0f}".format(10 + n / 26)
+formatter = mtc.FuncFormatter(fmter)
+a12.xaxis.set_major_formatter(formatter)
 
-#g1 = sb.FacetGrid(subs_rep_st, row='zone')
-#g1.map_dataframe(to_map_heatmap,
-#                 'city_newind', 
-#                 't', 
-#                 'log(inc)',
-#                 xticklabels=30,
-#                 yticklabels=10,
-#                 #vmin=subs_rep_st['inc_nmz'].min(),
-#                 #vmax=subs_rep_st['inc_nmz'].max(),
-#                 cmap=color_map,
-#                 cbar=True)
+######################### Plotting some reps of the data ######################
 
-#g2 = sb.FacetGrid(subs_mex, hue='rep', row='g_ind', col='strain')
-#g2.map(plt.plot, 't', 'inc_nmz')
+# Plots time series for the chosen cities
+subs_some = df[
+   ((df['city_newind'] == 238)
+    | (df['city_newind'] == 32)
+    | (df['city_newind'] == 23)
+    | (df['city_newind'] == 260)
+    | (df['city_newind'] == 1)
+    | (df['city_newind'] == 146))
+  & (df['rep'] == rep)]
 
-#subs_g_mex = subs_g[subs_g['city_newind'] == 1]
-#g3 = sb.FacetGrid(subs_g_mex, row='rep', col="strain")
-#g3.map(plt.plot, 't', 'inc_nmz')
+subs_some = subs_some.sort("by_zone")
+subs_some = subs_some.sort("t")
 
-plt.show()
+g2 = sb.FacetGrid(subs_some, hue='strain', row='city',
+                  row_order=["NEW YORK", "BEIJING", 
+                             "HO CHI MINH CITY", "RIO DE JANEIRO",
+                             "BUENOS AIRES", "WELLINGTON"],
+                  size=1.5, aspect=5, sharey=False)
+g2 = g2.map_dataframe(sb_plot, 't', 'inc_nmz') #marker=".", linestyle=' ')
+g2.set_ylabels("")
+g2.fig.suptitle("(c)", weight="demi", size="large", x=0.)
+
+#plt.show()
+
+f1.savefig("/home/queue/Documents/2015stage/plots/full_model_new_r" + str(rep) + ".png", 
+           dpi=300)
+
+g2.savefig("/home/queue/Documents/2015stage/plots/full_model_new_some_r" + str(rep) + ".png", 
+           dpi=300)
+

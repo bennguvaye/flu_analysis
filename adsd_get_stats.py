@@ -76,7 +76,7 @@ for i in range(12) :
       c = "blue"
     else :
       c = "green"
-    ax4.plot(t, dx[:, a * i + k], c)
+    ax4.plot(t, dx.iloc[:, a * i + k], c)
 ax4.plot(t[jp], np.zeros_like(t[jp]), 'o')
 
 plt.show()

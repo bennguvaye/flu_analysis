@@ -4,6 +4,7 @@
 # FIXME change the shebang on the cluster
 
 from lyaper import *
+from stdin_with_pandas import stdin_to_array
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sb
