@@ -96,7 +96,7 @@ for orig, lag in zip(origs, lags) :
 
 f0 = plt.figure()
 # figure layout
-grid = gs.GridSpec(4, 10)
+grid = gs.GridSpec(3, 10)
 # idf starts the earliest after usa/iceland
 tmin = tdata[tdata['origin']=='idf']['t'].min()
 tmax = tdata['t'].max()
